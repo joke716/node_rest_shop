@@ -54,10 +54,9 @@ router.post('/', (req, res, next) => {
 
 router.get('/:productId', (req, res, next) => {
     const id = req.params.productId;
-
     Product.findById(id)
         .exec()
-        .then(docs => {
+        .then(doc => {
             console.log("From database", doc);
             if (doc) {
                 res.status(200).json(doc);
@@ -73,17 +72,6 @@ router.get('/:productId', (req, res, next) => {
                 error: err
             });
         })
-
-    if (id === 'special') {
-        res.status(200).json({
-            message: 'You discovered the special ID',
-            id: id
-        });
-    } else {
-        res.status(200).json({
-            message: 'You passed an ID'
-        });
-    }
 });
 
 
