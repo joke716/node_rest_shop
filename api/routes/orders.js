@@ -51,8 +51,8 @@ router.post('/', (req, res, next) => {
             }
             const order = new Order ({
                 _id: mongoose.Types.ObjectId(),
-                productId: req.body.productId,
-                quantity: req.body.quantity
+                quantity: req.body.quantity,
+                product: req.body.productId
             });
             return order.save();
 
@@ -69,7 +69,7 @@ router.post('/', (req, res, next) => {
                 },
                 request: {
                     type: "GET",
-                    url: "http://localhost:3000/orders/" + doc._id
+                    url: "http://localhost:3000/orders/" + result._id
                 }
             });
         })
