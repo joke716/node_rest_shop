@@ -24,7 +24,7 @@ mongoose.connect(db, { useNewUrlParser: true })
 
 mongoose.Promise = global.Promise;
 
-
+mongoose.set('useCreateIndex', true)
 
 app.use(morgan("dev"));
 app.use('/uploads/', express.static('uploads'));
