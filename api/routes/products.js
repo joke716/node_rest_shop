@@ -33,7 +33,6 @@ const upload = multer({
 
 const Product = require("../models/product");
 
-
 router.get('/', ProductsController.products_get_all);
 router.post('/', checkAuth, upload.single('productImage'), ProductsController.products_create_product);
 router.get('/:productId', ProductsController.products_get_product);

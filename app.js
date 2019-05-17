@@ -6,25 +6,20 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 
-// app.use((req, res, next) => {
-//     res.status(200).json({
-//         message: 'It works!'
-//     });
-// });
-
 const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
 const userRoutes = require("./api/routes/user");
 
+
 const db = require('./config/key').mongoURI;
 
+mongoose.Promise = global.Promise;
 mongoose.connect(db, { useNewUrlParser: true })
     .then( () => console.log("MongoDB Connected ..."))
     .catch(err => console.log(err));
 
-mongoose.Promise = global.Promise;
-
 mongoose.set('useCreateIndex', true)
+
 
 app.use(morgan("dev"));
 app.use('/uploads/', express.static('uploads'));

@@ -1,12 +1,12 @@
 
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/user");
+const userModel = require("../models/user");
 
 exports.user_get_all = (req, res, next) => {
-    User.find()
+    userModel.find()
         .select()
         .then(result => {
             res.status(200).json(result);
@@ -23,7 +23,7 @@ exports.user_get_all = (req, res, next) => {
 
 exports.user_signup = (req, res, next) => {
 
-    User.find({ email: req.body.email })
+    userModel.find({ email: req.body.email })
         .exec()
         .then(user => {
             if (user.length >= 1) {
@@ -38,13 +38,12 @@ exports.user_signup = (req, res, next) => {
                             error: err
                         });
                     } else {
-                        const user = new User({
+                        const user = new userModel({
                             _id: new mongoose.Types.ObjectId(),
                             email: req.body.email,
                             password: hash
                         });
-                        user
-                            .save()
+                        user.save()
                             .then(result => {
                                 console.log(result);
                                 res.status(200).json({
@@ -70,7 +69,7 @@ exports.user_signup = (req, res, next) => {
 
 
 exports.user_login = (req, res, next) => {
-    User.find({ email: req.body.email })
+    userModel.find({ email: req.body.email })
         .exec()
         .then(user => {
             if (user.length < 1) {
@@ -114,7 +113,7 @@ exports.user_login = (req, res, next) => {
 
 
 exports.user_delete = (req, res, next) => {
-    User.remove({ _id: req.params.userId })
+    userModel.remove({ _id: req.params.userId })
         .exec()
         .then(result => {
             res.status(200).json({

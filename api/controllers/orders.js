@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const Order = require("../models/order");
-const Product = require("../models/product");
+const orderModel = require("../models/order");
+const productModel = require("../models/product");
 
 
 
@@ -9,7 +9,7 @@ const Product = require("../models/product");
 
 exports.orders_get_all = (req, res, next) => {
 
-    Order.find()
+    orderModel.find()
         .select("product quantity _id")
         .exec()
         .then(docs => {
@@ -39,14 +39,14 @@ exports.orders_get_all = (req, res, next) => {
 
 exports.orders_create_order = (req, res, next) => {
 
-    Product.findById(req.body.productId)
+    productModel.findById(req.body.productId)
         .then(product => {
             if (!product) {
                 return res.status(404).json({
                     message: "Product not found"
                 });
             }
-            const order = new Order({
+            const order = new orderModel({
                 _id: mongoose.Types.ObjectId(),
                 quantity: req.body.quantity,
                 product: req.body.productId
@@ -78,7 +78,7 @@ exports.orders_create_order = (req, res, next) => {
 
 exports.orders_get_order = (req, res, next) => {
 
-    Order.findById(req.params.orderId)
+    orderModel.findById(req.params.orderId)
         .exec()
         .then(order => {
             if (!order) {
@@ -102,7 +102,7 @@ exports.orders_get_order = (req, res, next) => {
 };
 
 exports.orders_delete_order = (req, res, next) => {
-    Order.remove({ _id: req.params.orderId })
+    orderModel.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
             res.status(200).json({
