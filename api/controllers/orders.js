@@ -1,11 +1,6 @@
-const mongoose = require("mongoose");
 
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
-
-
-
-
 
 exports.orders_get_all = (req, res, next) => {
 
@@ -13,7 +8,7 @@ exports.orders_get_all = (req, res, next) => {
         .select("product quantity _id")
         .exec()
         .then(docs => {
-            res.status(200).json({
+            res.json({
                 count: docs.length,
                 order: docs.map(doc => {
                     return {
@@ -55,7 +50,7 @@ exports.orders_create_order = (req, res, next) => {
         })
         .then(result => {
             console.log(result);
-            res.status(201).json({
+            res.json({
                 message: "Order stored",
                 createdOrder: {
                     _id: result._id,
@@ -86,7 +81,7 @@ exports.orders_get_order = (req, res, next) => {
                     message: "Order not found"
                 });
             }
-            res.status(200).json({
+            res.json({
                 order: order,
                 request: {
                     type: "GET",
@@ -105,7 +100,7 @@ exports.orders_delete_order = (req, res, next) => {
     orderModel.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
-            res.status(200).json({
+            res.json({
                 message: "oder deleted",
                 request: {
                     type: "POST",

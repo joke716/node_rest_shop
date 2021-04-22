@@ -2,15 +2,20 @@
 const express = require("express");
 const router = express.Router();
 
-const UserController = require("../controllers/user");
+const {
+    user_signup,
+    user_login,
+    user_get_all,
+    user_delete
+} = require("../controllers/user");
+
 const checkAuth = require("../middleware/chack-auth");
 
-router.get("/", UserController.user_get_all);
 
-router.post("/signup", UserController.user_signup);
-router.post("/login", UserController.user_login);
-router.delete("/:userId", checkAuth, UserController.user_delete);
-
+router.get("/", user_get_all);
+router.post("/signup", user_signup);
+router.post("/login", user_login);
+router.delete("/:userId", checkAuth, user_delete);
 
 
 module.exports = router;

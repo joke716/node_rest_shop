@@ -1,15 +1,15 @@
 
-const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const userModel = require("../models/user");
 
 exports.user_get_all = (req, res, next) => {
-    userModel.find()
-        .select()
+    userModel
+        .find()
+        .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.json(result);
         })
         .catch(err => {
             console.log(err);
@@ -23,39 +23,38 @@ exports.user_get_all = (req, res, next) => {
 
 exports.user_signup = (req, res, next) => {
 
-    userModel.find({ email: req.body.email })
+    const { email, password } = req.body;
+
+    userModel
+        .findOne({ email })
         .exec()
         .then(user => {
-            if (user.length >= 1) {
+            if (!user) {
                 return res.status(409).json({
                     message: "Mail exists"
                 });
             } else {
 
-                bcrypt.hash(req.body.password, 10, (err, hash) => {
+                bcrypt.hash(password, 10, (err, hash) => {
                     if(err) {
                         return res.status(500).json({
                             error: err
                         });
                     } else {
-                        const user = new userModel({
-                            _id: new mongoose.Types.ObjectId(),
-                            email: req.body.email,
-                            password: hash
+                        const newUser = new userModel({
+                            email, password: hash
                         });
-                        user.save()
+
+                        newUser
+                            .save()
                             .then(result => {
                                 console.log(result);
-                                res.status(200).json({
+                                res.json({
                                     message: 'User created',
-                                    createdUser: {
-                                        email: result.email,
-                                        password: result.password
-                                    }
+                                    createdUser: result
                                 });
                             })
                             .catch(err => {
-                                console.log(err);
                                 res.status(500).json({
                                     error: err
                                 });
@@ -69,15 +68,19 @@ exports.user_signup = (req, res, next) => {
 
 
 exports.user_login = (req, res, next) => {
-    userModel.find({ email: req.body.email })
+
+    const { email, password } = req.body
+
+    userModel
+        .findOne({ email })
         .exec()
         .then(user => {
-            if (user.length < 1) {
+            if (!user) {
                 return res.status(401).json({
                     message: "Auth failed"
                 });
             }
-            bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+            bcrypt.compare(password, user.password, (err, result) => {
 
                 if (err) {
                     return res.status(401).json({
@@ -87,10 +90,11 @@ exports.user_login = (req, res, next) => {
 
                 if (result) {
                     const token = jwt.sign({
-                            email: user[0].email,
-                            userId: user[0]._id
+                            userId: user._id,
+                            email: user.email
                         },
-                        "secret", { expiresIn: "1h" }
+                        process.env.SECRET,
+                        { expiresIn: "1h" }
                     );
                     return res.status(200).json({
                         message: "Auth successful",
@@ -103,7 +107,6 @@ exports.user_login = (req, res, next) => {
             });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
                 error: err
             });
@@ -112,11 +115,12 @@ exports.user_login = (req, res, next) => {
 };
 
 
-exports.user_delete = (req, res, next) => {
-    userModel.remove({ _id: req.params.userId })
+exports.user_delete = (req, res) => {
+    userModel
+        .findByIdAndDelete({ _id: req.params.userId })
         .exec()
         .then(result => {
-            res.status(200).json({
+            res.json({
                 message: "User deleted"
             });
         })

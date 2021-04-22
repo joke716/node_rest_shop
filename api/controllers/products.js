@@ -4,8 +4,8 @@ const productModel = require("../models/product");
 
 
 exports.products_get_all = (req, res, next) => {
-    productModel.find()
-        .select("name price _id productImage")
+    productModel
+        .find()
         .exec()
         .then(docs => {
             // console.log(docs);
@@ -13,10 +13,10 @@ exports.products_get_all = (req, res, next) => {
                 count: docs.length,
                 products: docs.map(doc => {
                     return{
+                        id: doc._id,
                         name: doc.name,
                         price: doc.price,
                         productImage: doc.productImage,
-                        _id: doc._id,
                         request: {
                             type: "GET",
                             url: "http://localhost:3000/products/" + doc._id
@@ -24,7 +24,7 @@ exports.products_get_all = (req, res, next) => {
                     };
                 })
             };
-            res.status(200).json(response);
+            res.json(response);
         })
         .catch(err => {
             console.log(err);
@@ -38,7 +38,6 @@ exports.products_get_all = (req, res, next) => {
 exports.products_create_product = (req, res, next) => {
 
     const product = new productModel({
-        _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
         productImage: req.file.path
@@ -51,10 +50,10 @@ exports.products_create_product = (req, res, next) => {
             res.status(201).json({
                 message: "Created product successfully",
                 createdProduct: {
+                    id: result._id,
                     name: result.name,
                     price: result.price,
                     productImage: result.productImage,
-                    _id: result._id,
                     request: {
                         type: 'GET',
                         url: "http://localhost:3000/products/" + result._id
@@ -74,8 +73,8 @@ exports.products_create_product = (req, res, next) => {
 
 exports.products_get_product = (req, res, next) => {
     const id = req.params.productId;
-    productModel.findById(id)
-        .select('name price _id productImage')
+    productModel
+        .findById(id)
         .exec()
         .then(doc => {
             console.log("From database", doc);
@@ -107,10 +106,11 @@ exports.products_update_product = (req, res, next) => {
     for (const ops of req.body) {
         updateOps[ops.propName] = ops.value;
     }
-    productModel.update({ _id: id }, { $set: updateOps })
+    productModel
+        .findByIdAndUpdate({ _id: id }, { $set: updateOps })
         .exec()
         .then(result => {
-            res.status(200).json({
+            res.json({
                 message: 'Product updated',
                 request: {
                     type: 'GET',
@@ -130,10 +130,11 @@ exports.products_update_product = (req, res, next) => {
 exports.products_delete = (req, res, next) => {
 
     const id = req.params.productId;
-    productModel.remove({ _id: id })
+    productModel
+        .findByIdAndDelete({ _id: id })
         .exec()
-        .then(result => {
-            res.status(200).json({
+        .then(() => {
+            res.json({
                 message: 'Product deleted',
                 request: {
                     type: 'POST',
